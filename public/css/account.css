@@ -1,0 +1,69 @@
+.backgroundcolor {
+    background-color: #004614;
+  }
+  
+  .text-color{
+    color: #004614;
+  }
+  
+  .headingtextsize{
+    font-size: 17px;
+  }
+  
+  .descriptiontextsize{
+    font-size: 14px;
+  }
+  
+  .buttoncolor:hover {
+    background-color: #004614;
+  }
+  
+  .text-hover:hover{
+    color: #e42e2e;
+  }
+  
+
+/* Login Page Styling */
+
+body {
+    background-color: #eef7fc;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.card {
+    border: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+.brand-title {
+    font-weight: bold;
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #052c65;
+    font-family: 'Georgia', serif;
+}
+.btn-google {
+    background: white;
+    border: 1px solid #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+.btn-apple {
+    background: white;
+    border: 1px solid #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-pimary,.btn-pimary:hover{
+    background: #004614;
+    color: #fff;
+}
+
+/* Register Page Styling */
