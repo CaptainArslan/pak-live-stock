@@ -60,7 +60,6 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('admin/breeds/check-exists', [BreedController::class, 'checkBreedExists'])->name('admin.breeds.check');
 
 // for feature ads
-
 Route::post('/firebase-login', [FirebaseAuthController::class, 'firebaseLogin'])->name('firebase-login');
 
 

@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Kreait\Firebase\Factory;
-use Kreait\Firebase\Auth as FirebaseAuth;
 
 class FirebaseAuthController extends Controller
 {
@@ -18,7 +17,7 @@ class FirebaseAuthController extends Controller
             return redirect()->back()->withErrors(['token' => 'Firebase token is required']);
         }
 
-        $auth = (new Factory)->withServiceAccount(base_path('firebase_credentials.json'))->createAuth();
+        $auth = (new Factory)->withServiceAccount(base_path('firebase/firebase.json'))->createAuth();
 
         try {
             $verifiedIdToken = $auth->verifyIdToken($firebaseToken);
