@@ -1,157 +1,215 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Register - Live Stock</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <style>
-    #loader {
-      display: none;
-      text-align: center;
-      padding: 10px;
-    }
-    label {
-      display: inline-block;
-      width: 100%;
-      direction: rtl;
-    }
-    .btn-primary {
-      background-color: #004614;
-      border: none !important;
-    }
-    .formcard {
-      height: 100vh !important;
-      align-items: center;
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register - Live Stock</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        #loader {
+            display: none;
+            text-align: center;
+            padding: 10px;
+        }
+
+        label {
+            display: inline-block;
+            width: 100%;
+            direction: rtl;
+        }
+
+        .btn-primary {
+            background-color: #004614;
+            border: none !important;
+        }
+
+        .formcard {
+            height: 100vh !important;
+            align-items: center;
+        }
+    </style>
 </head>
+
 <body>
-<div class="container py-5 d-flex formcard justify-content-center">
-  <div class="card p-4 w-100" style="max-width: 400px;">
-    <div class="text-center mb-3">
-      <a href="/"><img src="{{ asset('/assets/images/logo.png') }}" style="width: 70px; height: 70px;" /></a>
+    <div class="container py-5 d-flex formcard justify-content-center">
+        <div class="card p-4 w-100" style="max-width: 400px;">
+            <div class="text-center mb-3">
+                <a href="/"><img src="{{ asset('/assets/images/logo.png') }}"
+                        style="width: 70px; height: 70px;" /></a>
+            </div>
+            <h4 class="text-center mb-3">صارف رجسٹر کریں۔</h4>
+
+            <!-- Loader -->
+            <div id="loader">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-2">براہ کرم انتظار کریں...</p>
+            </div>
+
+            <!-- Register Form -->
+            <form id="register-form" action="{{ route('register-user') }}" method="POST">
+                @csrf
+                <label>نام:</label>
+                <input type="text" name="name" class="form-control mb-2" required />
+
+                <label>فون نمبر:</label>
+                <input type="tel" id="phone" class="form-control mb-2" placeholder="03001234567" required />
+
+                <div id="recaptcha-container" class="mb-3"></div>
+
+                <button type="button" id="send-otp" class="btn btn-primary w-100">OTP بھیجیں</button>
+
+                <div id="otp-section" class="mt-3 d-none">
+                    <label>OTP Code:</label>
+                    <input type="text" id="otp-code" class="form-control mb-2" placeholder="Enter OTP">
+                    <button type="button" id="verify-otp" class="btn btn-success w-100">OTP کی تصدیق کریں</button>
+                </div>
+
+                <!-- Hidden input to hold final verified +92 number -->
+                <input type="hidden" name="phone" id="verified-phone" />
+            </form>
+
+            <div class="text-center mt-3">
+                <a href="/" class="text-decoration-none text-black">← Back To Home</a>
+            </div>
+        </div>
     </div>
-    <h4 class="text-center mb-3">صارف رجسٹر کریں۔</h4>
 
-    <!-- Loader -->
-    <div id="loader">
-      <div class="spinner-border text-primary" role="status"></div>
-      <p class="mt-2">براہ کرم انتظار کریں...</p>
-    </div>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
 
-    <!-- Register Form -->
-    <form id="register-form" action="{{ route('register-user') }}" method="POST">
-      @csrf
-      <label>نام:</label>
-      <input type="text" name="name" class="form-control mb-2" required />
+    <script>
+        const firebaseConfig = @json(config('firebase.client'));
 
-      <label>فون نمبر:</label>
-      <input type="tel" id="phone" class="form-control mb-2" placeholder="03001234567" required />
+        firebase.initializeApp(firebaseConfig);
 
-      <div id="recaptcha-container" class="mb-3"></div>
+        const auth = firebase.auth();
+        let confirmationResult = null;
+        let formattedPhone = null;
 
-      <button type="button" id="send-otp" class="btn btn-primary w-100">OTP بھیجیں</button>
+        const loader = document.getElementById("loader");
+        const form = document.getElementById("register-form");
+        const sendOtpBtn = document.getElementById("send-otp");
+        const verifyOtpBtn = document.getElementById("verify-otp");
+        const phoneInput = document.getElementById("phone");
+        const otpSection = document.getElementById("otp-section");
+        const verifiedPhoneInput = document.getElementById("verified-phone");
 
-      <div id="otp-section" class="mt-3 d-none">
-        <label>OTP Code:</label>
-        <input type="text" id="otp-code" class="form-control mb-2" placeholder="Enter OTP">
-        <button type="button" id="verify-otp" class="btn btn-success w-100">OTP کی تصدیق کریں</button>
-      </div>
+        // Add this hidden input in your form:
+        // <input type="hidden" name="firebase_token" id="firebase-token" />
+        const firebaseTokenInput = document.getElementById("firebase-token");
 
-      <!-- Hidden input to hold final verified +92 number -->
-      <input type="hidden" name="phone" id="verified-phone" />
-    </form>
+        window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier("recaptcha-container", {
+            size: "invisible"
+        });
 
-    <div class="text-center mt-3">
-      <a href="/" class="text-decoration-none text-black">← Back To Home</a>
-    </div>
-  </div>
-</div>
+        function normalizePhoneNumber(number) {
+            number = number.replace(/\D/g, '');
 
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
+            if (number.startsWith("0")) {
+                return "+92" + number.slice(1);
+            }
 
-<script>
-  const firebaseConfig = @json(config('firebase.client'));
+            if (number.startsWith("92")) {
+                return "+" + number;
+            }
 
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-</script>
+            if (number.startsWith("3") && number.length === 10) {
+                return "+92" + number;
+            }
 
-<script>
-  let confirmationResult = null;
+            return number;
+        }
 
-  const loader = document.getElementById("loader");
-  const form = document.getElementById("register-form");
+        sendOtpBtn.addEventListener("click", function() {
+            if (!form.reportValidity()) {
+                return;
+            }
 
-  // Normalize Pakistani number to +92 format
-  function normalizePhoneNumber(number) {
-    number = number.replace(/\D/g, ''); // Remove non-digit
-    if (number.startsWith("0")) {
-      return "+92" + number.slice(1);
-    } else if (number.startsWith("92")) {
-      return "+" + number;
-    } else if (number.startsWith("3") && number.length === 10) {
-      return "+92" + number;
-    }
-    return number;
-  }
+            const rawPhone = phoneInput.value.trim();
+            formattedPhone = normalizePhoneNumber(rawPhone);
 
-  document.getElementById("send-otp").addEventListener("click", function () {
-    let phoneInput = document.getElementById("phone").value.trim();
-    const formattedPhone = normalizePhoneNumber(phoneInput);
-    const phoneRegex = /^\+923\d{9}$/;
+            const phoneRegex = /^\+923\d{9}$/;
 
-    if (!phoneRegex.test(formattedPhone)) {
-      Swal.fire("Invalid Number", "Enter valid number like 03001234567", "error");
-      return;
-    }
+            if (!phoneRegex.test(formattedPhone)) {
+                Swal.fire("Invalid Number", "Enter valid number like 03001234567", "error");
+                return;
+            }
 
-    loader.style.display = 'block';
+            loader.style.display = "block";
+            sendOtpBtn.disabled = true;
 
-    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier("recaptcha-container", {
-      size: "invisible"
-    });
+            auth.signInWithPhoneNumber(formattedPhone, window.recaptchaVerifier)
+                .then(function(result) {
+                    confirmationResult = result;
 
-    auth.signInWithPhoneNumber(formattedPhone, window.recaptchaVerifier)
-      .then(function (result) {
-        loader.style.display = 'none';
-        confirmationResult = result;
-        document.getElementById("otp-section").classList.remove("d-none");
-        document.getElementById("verified-phone").value = formattedPhone;
-        Swal.fire("OTP Sent", "Check your phone for the code.", "success");
-      })
-      .catch(function (error) {
-        loader.style.display = 'none';
-        Swal.fire("Error", error.message, "error");
-      });
-  });
+                    otpSection.classList.remove("d-none");
+                    verifiedPhoneInput.value = formattedPhone;
 
-  document.getElementById("verify-otp").addEventListener("click", function () {
-    const otpCode = document.getElementById("otp-code").value.trim();
-    if (!otpCode) {
-      Swal.fire("Required", "Please enter the OTP.", "warning");
-      return;
-    }
+                    Swal.fire("OTP Sent", "Check your phone for the code.", "success");
+                })
+                .catch(function(error) {
+                    if (window.recaptchaVerifier) {
+                        window.recaptchaVerifier.clear();
+                        window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier("recaptcha-container", {
+                            size: "invisible"
+                        });
+                    }
 
-    loader.style.display = 'block';
+                    Swal.fire("Error", error.message, "error");
+                })
+                .finally(function() {
+                    loader.style.display = "none";
+                    sendOtpBtn.disabled = false;
+                });
+        });
 
-    confirmationResult.confirm(otpCode)
-      .then(function () {
-        Swal.fire("Verified", "Phone number verified successfully!", "success");
-        setTimeout(() => {
-          loader.style.display = 'none';
-          form.submit(); // Submit the form to Laravel backend
-        }, 800);
-      })
-      .catch(function (error) {
-        loader.style.display = 'none';
-        Swal.fire("Invalid OTP", "Verification failed. Try again.", "error");
-      });
-  });
-</script>
+        verifyOtpBtn.addEventListener("click", function() {
+            const otpCode = document.getElementById("otp-code").value.trim();
+
+            if (!confirmationResult) {
+                Swal.fire("Error", "Please send OTP first.", "error");
+                return;
+            }
+
+            if (!otpCode) {
+                Swal.fire("Required", "Please enter the OTP.", "warning");
+                return;
+            }
+
+            if (!form.reportValidity()) {
+                return;
+            }
+
+            loader.style.display = "block";
+            verifyOtpBtn.disabled = true;
+
+            confirmationResult.confirm(otpCode)
+                .then(async function(result) {
+                    const token = await result.user.getIdToken();
+
+                    verifiedPhoneInput.value = formattedPhone;
+
+                    if (firebaseTokenInput) {
+                        firebaseTokenInput.value = token;
+                    }
+
+                    Swal.fire("Verified", "Phone number verified successfully!", "success")
+                        .then(function() {
+                            form.submit();
+                        });
+                })
+                .catch(function() {
+                    Swal.fire("Invalid OTP", "Verification failed. Try again.", "error");
+                })
+                .finally(function() {
+                    loader.style.display = "none";
+                    verifyOtpBtn.disabled = false;
+                });
+        });
+    </script>
 </body>
+
 </html>
