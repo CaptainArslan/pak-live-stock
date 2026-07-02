@@ -95,7 +95,7 @@
                                 @if($existingImages)
                                     @foreach($existingImages as $image)
                                         <div class="existing-image">
-                                            <img src="{{ Storage::url($image) }}" alt="image"
+                                            <img src="{{ asset('storage/app/public/' . $image) }}" alt="image"
                                                  style="width: 70px; height: 70px; object-fit: cover; border: 1px solid #ccc; border-radius: 4px;">
                                         </div>
                                     @endforeach

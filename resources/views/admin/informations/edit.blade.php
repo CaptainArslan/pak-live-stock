@@ -28,7 +28,7 @@
             <input type="file" class="form-control" name="image">
             @if ($information->image)
                 <div class="mt-2">
-                    <img src="{{ Storage::url($information->image) }}" class="img-thumbnail" width="200">
+                    <img src="{{ asset('storage/app/public/' . $information->image) }}" class="img-thumbnail" width="200">
                 </div>
             @endif
         </div>

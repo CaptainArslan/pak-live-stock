@@ -34,7 +34,7 @@
                     </td>
                     <td>
                         <a href="{{ Storage::url($request->receipt_image) }}" target="_blank">
-                            <img src="{{ Storage::url($request->receipt_image) }}" width="100">
+                            <img src="{{ asset('storage/app/public/' . $request->receipt_image) }}" width="100">
                         </a>
                     </td>
                     <td>

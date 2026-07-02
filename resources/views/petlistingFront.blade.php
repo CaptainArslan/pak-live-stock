@@ -14,7 +14,7 @@
                 @if (!$mainCat || $category->main_cat == $mainCat)
                     <a href="/petlistingFront?category={{ $category->id }}" class="d-flex justify-content-between px-lg-4 swiper-slide card-slider text-dark card" style="text-decoration: none !important;">
                         @if($category->image)
-                            <img src="{{ Storage::url($category->image) }}" style="width: 50px; height: 50px;" alt="{{ $category->name }}">
+                            <img src="{{ asset('storage/app/public/' . $category->image) }}" style="width: 50px; height: 50px;" alt="{{ $category->name }}">
                         @else
                             <img src="{{ asset('/assets/images/listingImage.webp') }}" style="width: 50px; height: 50px;" alt="No Image">
                         @endif
@@ -93,7 +93,7 @@
                             @php $firstImage = json_decode($listing->images)[0] ?? null; @endphp
                             <a href="{{ route('listing.show', $listing->id) }}" class="text-decoration-none">
                                 <img
-                                    src="{{ $firstImage ? Storage::url($firstImage) : asset('/assets/images/listingImage.webp') }}"
+                                    src="{{ $firstImage ? asset('storage/app/public/' . $firstImage) : asset('/assets/images/listingImage.webp') }}"
                                     class="card-img-top"
                                     alt="{{ $listing->category->name }}"
                                     style="height: 150px; width: 100%; object-fit: cover;" />

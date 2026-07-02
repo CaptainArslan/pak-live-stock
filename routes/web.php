@@ -17,14 +17,23 @@ use App\Http\Controllers\FeaturedRequestController;
 use App\Http\Controllers\Admin\FeaturedRequestController as AdminFeaturedRequestController;
 use App\Http\Controllers\FirebaseAuthController;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Api\ListingApiController;
-use App\Http\Controllers\Api\PhoneUserAuthController;
 use App\Models\Province;
 use App\Models\City;
 use App\Http\Controllers\ListingIntractionController;
 use App\Http\Controllers\ListingLikeController;
 use App\Models\Information;
-use App\Http\Controllers\AIChatController;
+use Illuminate\Support\Facades\Storage;
+
+// Serve uploaded files from storage/app/public without requiring public/storage symlink.
+Route::get('/storage/app/public/{path}', function (string $path) {
+    $path = str_replace(['..', '\\'], '', $path);
+
+    if (! Storage::disk('public')->exists($path)) {
+        abort(404);
+    }
+
+    return Storage::disk('public')->response($path);
+})->where('path', '.*');
 
 Route::get('/clear-all', function () {
     \Artisan::call('config:clear');

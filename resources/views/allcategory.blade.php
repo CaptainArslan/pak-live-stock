@@ -59,7 +59,7 @@
                             $firstImage = $listing->images ? json_decode($listing->images)[0] ?? null : null;
                         @endphp
                         <img
-                            src="{{ $firstImage ? Storage::url($firstImage) : asset('/assets/images/listingImage.webp') }}"
+                            src="{{ $firstImage ? asset('storage/app/public/' . $firstImage) : asset('/assets/images/listingImage.webp') }}"
                             class="card-img-top"
                             alt="Listing Image"
                             style="height: 150px; width: 100%; object-fit: cover;" />

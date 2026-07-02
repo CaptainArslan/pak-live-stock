@@ -27,7 +27,7 @@
         <div class="bg-white rounded shadow-sm">
             {{-- Image Section (Only if an image exists) --}}
             @if ($info->image)
-                    <img src="{{ Storage::url($info->image) }}" alt="Blog Image" class="img-fluid blog-img mb-4">
+                    <img src="{{ asset('storage/app/public/' . $info->image) }}" alt="Blog Image" class="img-fluid blog-img mb-4">
             @endif
             
                     

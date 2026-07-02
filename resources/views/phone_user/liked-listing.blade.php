@@ -61,7 +61,7 @@
                         @php $firstImage = json_decode($listing->images)[0] ?? null; @endphp
                         <a href="{{ route('listing.show', $listing->id) }}" class="text-decoration-none">
                             <img
-                                src="{{ $firstImage ? Storage::url($firstImage) : asset('/assets/images/listingImage.webp') }}"
+                                src="{{ $firstImage ? asset('storage/app/public/' . $firstImage) : asset('/assets/images/listingImage.webp') }}"
                                 class="card-img-top"
                                 alt="{{ $listing->category->name }}"
                                 style="height: 150px; width: 100%; object-fit: cover;" />

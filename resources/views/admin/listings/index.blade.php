@@ -89,7 +89,7 @@
                             <td>
                                 @if($listing->images)
                                 @php $firstImage = json_decode($listing->images)[0] ?? null; @endphp
-                                    <img src="{{ $firstImage ? Storage::url($firstImage) : asset('assets/images/listingImage.webp') }}" class="img-thumbnail" style="width: 50px;">
+                                    <img src="{{ $firstImage ? asset('storage/app/public/' . $firstImage) : asset('assets/images/listingImage.webp') }}" class="img-thumbnail" style="width: 50px;">
                                 @endif
                             </td>
                             <td>{{ $listing->category->name }}</td>

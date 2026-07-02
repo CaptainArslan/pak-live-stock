@@ -13,7 +13,7 @@ The site was showing **Phantom Shell v2.0** (a malicious PHP file manager) inste
 
 **Result after cleanup:** Homepage title displays **"Home - Pak Livestock"** at `http://paklivestock.test/`.
 
-**Subsequent fix:** Image and media URLs in Blade templates were updated to use `Storage::url()` instead of hardcoded `asset('storage/app/public/...')` paths (requires `php artisan storage:link`).
+**Subsequent fix (June 2026):** Image URLs in Blade templates use `asset('storage/app/public/' . $path)` for dynamic `<img>` tags, with a storage serve route in `routes/web.php` so files work without `php artisan storage:link` on local Herd.
 
 ---
 
@@ -39,7 +39,7 @@ Additional malware (~50+ files) was spread as `index.php` inside random numeric 
 |------|--------|-------------|
 | `index.php` (project root) | **Updated** | Removed commented malware loader (`index.gz`). Replaced with standard Laravel root router that forwards requests to `public/index.php`. |
 | `public/.htaccess` | **Created** | Added standard Laravel rewrite rules (file was missing). Routes requests to `public/index.php` and blocks directory listing. |
-| 26 Blade templates (see §11) | **Updated** | Replaced `asset('storage/app/public/' . …)` and `asset('storage/' . …)` with `Storage::url(…)` for uploaded images/videos. |
+| 26 Blade templates (see §11–§12) | **Updated** | Dynamic `<img>` tags use `asset('storage/app/public/' . …)`; storage serve route added in `routes/web.php`. |
 
 ### Root `index.php` (after fix)
 
@@ -354,7 +354,59 @@ php artisan view:clear
 | `asset('storage/app/public/' . $path)` | `Storage::url($path)` |
 | `asset('storage/' . $path)` | `Storage::url($path)` |
 
-Ternary fallbacks to placeholder images (e.g. `asset('/assets/images/listingImage.webp')`) were left unchanged.
+---
+
+## 12. Storage Image URL Fix — June 2026 (current approach)
+
+### Problem
+
+- Files live at `storage/app/public/listings/…` but Herd/local uses `public/` as document root, so `asset('storage/app/public/…')` pointed to a path that did not exist on disk under `public/`.
+- `Storage::url()` requires `php artisan storage:link` and produces `/storage/listings/…` (not `/storage/app/public/listings/…`), which did not match production URL layout.
+
+### Solution
+
+1. **Blade — dynamic `<img>` only** (26 files):
+
+```blade
+<img src="{{ asset('storage/app/public/' . $firstImage) }}">
+```
+
+Ternary fallbacks to `asset('/assets/images/listingImage.webp')` unchanged. `<source>`, `<a href>`, comments, and static `/assets/` images were not changed.
+
+2. **Route** — `routes/web.php` (top of file):
+
+```php
+Route::get('/storage/app/public/{path}', function (string $path) {
+    $path = str_replace(['..', '\\'], '', $path);
+    if (! Storage::disk('public')->exists($path)) {
+        abort(404);
+    }
+    return Storage::disk('public')->response($path);
+})->where('path', '.*');
+```
+
+Serves uploads from `storage/app/public/` without a `public/storage` symlink.
+
+### Production URL pattern
+
+```
+https://paklivestock.com.pk/storage/app/public/listings/filename.jpg
+```
+
+### Post-deploy commands
+
+```bash
+php artisan view:clear
+php artisan route:clear
+```
+
+### Files updated (26 Blade templates)
+
+Same file list as §11.1 — all dynamic listing, category, information, receipt, and admin preview images.
+
+| Before | After |
+|--------|--------|
+| `Storage::url($path)` | `asset('storage/app/public/' . $path)` |
 
 ---
 

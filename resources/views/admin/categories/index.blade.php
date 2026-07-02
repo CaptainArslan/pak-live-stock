@@ -41,7 +41,7 @@
                         <td>{{ $index + $categories->firstItem() }}</td>
                         <td>
                             @if($category->image)
-                                <img src="{{ Storage::url($category->image) }}" width="50" class="img-thumbnail">
+                                <img src="{{ asset('storage/app/public/' . $category->image) }}" width="50" class="img-thumbnail">
                             @endif
                         </td>
                         <td class="fw-semibold">{{ $category->name }}</td>

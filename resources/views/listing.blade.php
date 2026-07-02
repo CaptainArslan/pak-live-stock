@@ -25,7 +25,7 @@
                         <ul class="splide__list">
                             @foreach(json_decode($listing->images) as $image)
                                 <li class="splide__slide">
-                                    <img src="{{ $image ? Storage::url($image) : asset('/assets/images/listingImage.webp') }}" alt="Listing Image" class="w-100 h-auto">
+                                    <img src="{{ $image ? asset('storage/app/public/' . $image) : asset('/assets/images/listingImage.webp') }}" alt="Listing Image" class="w-100 h-auto">
                                 </li>
                             @endforeach
                         </ul>
@@ -38,7 +38,7 @@
                         <ul class="splide__list">
                             @foreach(json_decode($listing->images) as $image)
                                 <li class="splide__slide">
-                                    <img src="{{ $image ? Storage::url($image) : asset('/assets/images/listingImage.webp') }}" alt="Listing Image" class="w-100 h-auto">
+                                    <img src="{{ $image ? asset('storage/app/public/' . $image) : asset('/assets/images/listingImage.webp') }}" alt="Listing Image" class="w-100 h-auto">
                                 </li>
                             @endforeach
                         </ul>
@@ -535,7 +535,7 @@
                 @php $firstImage = json_decode($listing->images)[0] ?? null; @endphp
                 <a href="{{ route('listing.show', $listing->id) }}" class="text-decoration-none">
                     <img
-                        src="{{ $firstImage ? Storage::url($firstImage) : asset('/assets/images/listingImage.webp') }}"
+                        src="{{ $firstImage ? asset('storage/app/public/' . $firstImage) : asset('/assets/images/listingImage.webp') }}"
                         class="card-img-top"
                         alt="{{ $listing->category->name }}"
                         style="height: 150px; width: 100%; object-fit: cover; position:relative;" />

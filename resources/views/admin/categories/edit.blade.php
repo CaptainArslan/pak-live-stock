@@ -30,7 +30,7 @@
 
     @if($category->image)
         <div>
-            <img src="{{ Storage::url($category->image) }}" width="100">
+            <img src="{{ asset('storage/app/public/' . $category->image) }}" width="100">
         </div>
     @endif
 

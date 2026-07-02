@@ -53,10 +53,15 @@
                         <div class="card d-flex flex-column pb-1">
                             <div style="position: relative;">
                                 @if ($listing->images)
-                                    @php $firstImage = json_decode($listing->images)[0] ?? null; @endphp
+                                    @php
+                                        $images = is_array($listing->images)
+                                            ? $listing->images
+                                            : json_decode($listing->images, true) ?? [];
+                                        $firstImage = $images[0] ?? null;
+                                    @endphp
                                     <a href="{{ route('listing.show', $listing->id) }}" class="text-decoration-none">
-                                        <img src="{{ $firstImage ? Storage::url($firstImage) : asset('/assets/images/listingImage.webp') }}"
-                                            class="card-img-top" alt="{{ $listing->category->name }}"
+                                        <img src="{{ asset('storage/app/public/' . $firstImage) }}" class="card-img-top"
+                                            alt="{{ $listing->category->name }}"
                                             style="height: 150px; width: 100%; object-fit: cover;" />
                                     </a>
                                 @endif

@@ -1,64 +1,186 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# Pak Livestock
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Laravel 8 marketplace for buying and selling livestock, pets, birds, and related listings in Pakistan.
 
-## About Laravel
+| Environment | URL |
+|-------------|-----|
+| Production | https://paklivestock.com.pk |
+| Local (Herd) | http://paklivestock.test |
+| Local (`artisan serve`) | http://127.0.0.1:8000 |
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Tech stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **PHP** 7.3+ / 8.x
+- **Laravel** 8.x
+- **MySQL**
+- **Firebase** — phone OTP registration (`kreait/firebase-php`)
+- **Laravel Sanctum** — API auth
+- **Blade** — server-rendered UI (no Livewire / Vue SPA)
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Local setup
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```bash
+# Clone
+git clone git@github.com:CaptainArslan/pak-live-stock.git
+cd pak-live-stock
 
-## Laravel Sponsors
+# Dependencies
+composer install
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+# Environment
+cp .env.example .env   # or copy your existing .env
+php artisan key:generate
 
-### Premium Partners
+# Database — import your dump, then:
+php artisan migrate    # if needed
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+# Clear caches
+php artisan config:clear
+php artisan view:clear
+php artisan route:clear
+```
 
-## Contributing
+### `.env` (important)
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```env
+APP_URL=http://paklivestock.test    # use your real local or production URL
 
-## Code of Conduct
+DB_CONNECTION=mysql
+DB_DATABASE=pak_live_stock
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Firebase client config lives in `firebase/firebase.json` (gitignored). See `config/firebase.php`.
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Uploaded images & storage
+
+### How it works
+
+Uploads are saved to the Laravel **`public` disk**:
+
+```
+storage/app/public/
+├── listings/              ← web listing images
+├── uploads/listings/      ← API/mobile listing images
+├── categories/
+├── uploads/info_images/
+├── uploads/info_videos/
+└── receipts/
+```
+
+The database stores **relative paths** only, e.g. `listings/abc123.jpg` in `listings.images` (JSON array).
+
+### Displaying images in Blade
+
+All dynamic `<img>` tags use:
+
+```blade
+<img src="{{ asset('storage/app/public/' . $imagePath) }}">
+```
+
+With fallbacks where needed:
+
+```blade
+<img src="{{ $firstImage ? asset('storage/app/public/' . $firstImage) : asset('/assets/images/listingImage.webp') }}">
+```
+
+**26 Blade templates** were updated to this pattern (see `PROJECT-CLEANUP-REPORT.md` §12).
+
+### Serving files without `storage:link`
+
+A route in `routes/web.php` serves files from `storage/app/public` when the URL is `/storage/app/public/...`:
+
+```php
+Route::get('/storage/app/public/{path}', function (string $path) {
+    // returns file from storage/app/public/{path}
+})->where('path', '.*');
+```
+
+This is required on **local Herd** (document root = `public/`) where files outside `public/` are not directly web-accessible.
+
+On **production**, if the full project lives in `public_html`, Apache may serve `/storage/app/public/...` directly from disk. The route still works as a fallback.
+
+`php artisan storage:link` is **optional** with this setup.
+
+### Production image URL
+
+```
+https://paklivestock.com.pk/storage/app/public/listings/filename.jpg
+```
+
+---
+
+## File uploads (where uploads happen)
+
+| Feature | Controller | Input field | Storage folder |
+|---------|------------|-------------|----------------|
+| Web listings | `Admin\ListingController` | `images[]` | `listings/` |
+| API listings | `Api\ListController`, `Api\ListingApiController` | `images[]` | `uploads/listings/` |
+| Categories | `Admin\CategoryController` | `image` | `categories/` |
+| Information | `Admin\InformationController` | `image`, `video_upload` | `uploads/info_images/`, `uploads/info_videos/` |
+| Featured receipt | `FeaturedRequestController` | `receipt_image` | `receipts/` |
+
+**Note:** Web and API listing uploads use different folders (`listings/` vs `uploads/listings/`). Both work with the same display URL pattern as long as the DB path matches the file on disk.
+
+---
+
+## Useful commands
+
+```bash
+php artisan config:clear
+php artisan view:clear
+php artisan route:clear
+php artisan cache:clear
+composer dump-autoload -o
+```
+
+After deploying Blade or route changes:
+
+```bash
+php artisan view:clear
+php artisan route:clear
+```
+
+---
+
+## Security & maintenance
+
+| Document | Purpose |
+|----------|---------|
+| [PROJECT-CLEANUP-REPORT.md](PROJECT-CLEANUP-REPORT.md) | Malware cleanup, webshell removal, image URL fixes |
+| [GIT-SECRETS-REMOVAL-GUIDE.md](GIT-SECRETS-REMOVAL-GUIDE.md) | Removing leaked Firebase keys from Git history |
+
+### Security reminders
+
+- **Rotate Firebase keys** if they were ever committed to Git.
+- **`/clear-all`** route in `web.php` clears config/view cache publicly — restrict or remove on production.
+- Do not commit `.env` or `firebase/firebase.json`.
+- Scan `storage/` and `config/` for unexpected `index.php` files after any server compromise.
+
+---
+
+## Known issues / follow-ups
+
+- `POST /api/update_listing/{id}/images` → `ListController::updateListingImages` — route exists, method missing.
+- `POST /api/listings` → `ListingApiController::store` — route exists, method missing.
+- Web listings save to `listings/`; API saves to `uploads/listings/` — consider unifying.
+- Set `APP_URL` correctly per environment so `asset()` generates the right domain.
+
+---
+
+## Repository
+
+**GitHub:** [CaptainArslan/pak-live-stock](https://github.com/CaptainArslan/pak-live-stock)
+
+---
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Laravel framework is open-sourced under the [MIT license](https://opensource.org/licenses/MIT).

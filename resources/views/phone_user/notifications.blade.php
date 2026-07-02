@@ -27,7 +27,7 @@
                             <td>
                                 @if($request->listing->images)
                                     @php $images = json_decode($request->listing->images); @endphp
-                                    <img src="{{ Storage::url($images[0]) }}" class="rounded" style="width: 60px; height: 60px; object-fit: cover;">
+                                    <img src="{{ asset('storage/app/public/' . $images[0]) }}" class="rounded" style="width: 60px; height: 60px; object-fit: cover;">
                                 @else
                                     <span class="text-muted">No Image</span>
                                 @endif
@@ -70,7 +70,7 @@
                             <td>
                                 @if($request->listing->images)
                                     @php $images = json_decode($request->listing->images); @endphp
-                                    <img src="{{ Storage::url($images[0]) }}" class="rounded" style="width: 60px; height: 60px; object-fit: cover;">
+                                    <img src="{{ asset('storage/app/public/' . $images[0]) }}" class="rounded" style="width: 60px; height: 60px; object-fit: cover;">
                                 @else
                                     <span class="text-muted">No Image</span>
                                 @endif

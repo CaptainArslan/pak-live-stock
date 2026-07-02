@@ -117,7 +117,7 @@
                             @if ($category->main_cat == "Livestock")
                         <li><a class="nav-link" href="{{ route('admin.listings.index', ['category' => $category->id]) }}">
                              @if($category->image)
-                              <img src="{{ Storage::url($category->image) }}" style="width:30px; height:30px; object-fit:cover;" class="rounded-circle">
+                              <img src="{{ asset('storage/app/public/' . $category->image) }}" style="width:30px; height:30px; object-fit:cover;" class="rounded-circle">
                              @endif
                             &nbsp; &nbsp;<span class="d-none d-sm-inline">{{ $category->name }}</span>
                             </a></li>
@@ -134,7 +134,7 @@
                             @if ($category->main_cat == "Pets")
                         <li><a class="nav-link" href="{{ route('admin.listings.index', ['category' => $category->id]) }}">
                              @if($category->image)
-                              <img src="{{ Storage::url($category->image) }}" style="width:30px; height:30px; object-fit:cover;" class="rounded-circle">
+                              <img src="{{ asset('storage/app/public/' . $category->image) }}" style="width:30px; height:30px; object-fit:cover;" class="rounded-circle">
                              @endif
                             &nbsp; &nbsp;<span class="d-none d-sm-inline">{{ $category->name }}</span>
                             </a></li>
@@ -151,7 +151,7 @@
                             @if ($category->main_cat == "Birds")
                         <li><a class="nav-link" href="{{ route('admin.listings.index', ['category' => $category->id]) }}">
                              @if($category->image)
-                              <img src="{{ Storage::url($category->image) }}" style="width:30px; height:30px; object-fit:cover;" class="rounded-circle">
+                              <img src="{{ asset('storage/app/public/' . $category->image) }}" style="width:30px; height:30px; object-fit:cover;" class="rounded-circle">
                              @endif
                             &nbsp; &nbsp;<span class="d-none d-sm-inline">{{ $category->name }}</span>
                             </a></li>
@@ -168,7 +168,7 @@
                             @if ($category->main_cat == "Other")
                         <li><a class="nav-link" href="{{ route('admin.listings.index', ['category' => $category->id]) }}">
                              @if($category->image)
-                              <img src="{{ Storage::url($category->image) }}" style="width:30px; height:30px; object-fit:cover;" class="rounded-circle">
+                              <img src="{{ asset('storage/app/public/' . $category->image) }}" style="width:30px; height:30px; object-fit:cover;" class="rounded-circle">
                              @endif
                             &nbsp; &nbsp;<span class="d-none d-sm-inline">{{ $category->name }}</span>
                             </a></li>

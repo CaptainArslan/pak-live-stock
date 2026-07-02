@@ -72,7 +72,7 @@
                     <div class="col-md-12 mt-3">
                         <label class="form-label">تصاویر</label><br>
                         @foreach(json_decode($listing->images) as $image)
-                            <img src="{{ Storage::url($image) }}" width="100px" class="me-2 mb-2">
+                            <img src="{{ asset('storage/app/public/' . $image) }}" width="100px" class="me-2 mb-2">
                         @endforeach
                     </div>
                 @endif

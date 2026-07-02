@@ -17,7 +17,7 @@
         <a href="#" class="text-decoration-none">
         <div class="team-card">
             @if ($info->image)
-            <img src="{{ Storage::url($info->image) }}" alt="Adam Lee">
+            <img src="{{ asset('storage/app/public/' . $info->image) }}" alt="Adam Lee">
             @endif
           <div class="team-overlay">
             <h6 class="mb-0 text-white">{{ $info->title }}</h6>

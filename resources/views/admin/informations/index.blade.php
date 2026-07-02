@@ -30,7 +30,7 @@
                             <td>{{ $info->title }}</td>
                             <td>
                                 @if ($info->image)
-                                    <img src="{{ Storage::url($info->image) }}" alt="Image" width="50">
+                                    <img src="{{ asset('storage/app/public/' . $info->image) }}" alt="Image" width="50">
                                 @else
                                     No Image
                                 @endif
